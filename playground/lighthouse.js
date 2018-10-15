@@ -123,7 +123,8 @@ const conditionTracker = condition => {
       let cellName = convertToCellName(row, col);
       conditionArray.push(cellName);
     }
-    if (col < GRID.length) {
+    if (col < GRID[0].length) {
+      // Changed code GRID[0]
       col++;
     } else {
       col = 0;

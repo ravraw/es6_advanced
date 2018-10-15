@@ -1,17 +1,35 @@
 require("dotenv").config();
-const request = require("request");
-request(
-  {
-    url: `http://www.mapquestapi.com/geocoding/v1/address?key=${
-      process.env.WEATHER_KEY
-    }&location=1301%20lombard%20street%20philadelphia`,
-    json: true
-  },
-  function(error, response, body) {
-    console.log("error:", error);
-    console.log("statusCode:", response && response.statusCode);
-    const lat = body.results[0].locations[0].latLng.lat;
-    const lng = body.results[0].locations[0].latLng.lng;
-    console.log("lat", lat, "lag", lng);
+const yargs = require("yargs");
+const geoCode = require("./geoCode/geoCode");
+const forecast = require("./forecast/forecast");
+
+const argv = yargs
+  .options({
+    a: {
+      demand: true,
+      alias: "address",
+      describe: "Address to fetch weather for",
+      string: true
+    }
+  })
+  .help()
+  .alias("help", "h").argv;
+
+geoCode.geoCodeAddress(argv.address, (errorMessage, result) => {
+  if (errorMessage) {
+    console.log(errorMessage);
+  } else {
+    console.log(result.address);
+    forecast.getForecast(
+      result.latitude,
+      result.longitude,
+      (errorMessage, forecastResult) => {
+        if (errorMessage) {
+          console.log(errorMessage);
+        } else {
+          console.log(JSON.stringify(forecastResult, undefined, 2));
+        }
+      }
+    );
   }
-);
+});
